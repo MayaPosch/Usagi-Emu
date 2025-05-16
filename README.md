@@ -12,5 +12,5 @@ Usage instructions can be obtained by running with the `-h` flag, but essentiall
 
 The only dependency ([Sarge](https://github.com/MayaPosch/Sarge)) is already included in the source.
 
-[!NOTE]
-The original QuickBasic version is also contained in this repository. Its copyright is owned by David Lovett (Mr. Usagi Electric) himself, not by this author.
+> [!NOTE]
+> The original QuickBasic version is also contained in this repository. Its copyright is owned by David Lovett (Mr. Usagi Electric) himself, not by this author.
