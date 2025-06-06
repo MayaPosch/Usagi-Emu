@@ -25,6 +25,42 @@
 #include "processor.h"
 
 
+// --- UPDATE DISPLAY ---
+// Update the status display.
+void update_display() {
+	// Clear screen using ANSI VT100 code.
+	printf("\033[2J");
+	
+	// Output data.
+	std::cout << "INSTRUCTION   : " << opco << "\n";
+	std::cout << "MEMORY ADDRESS: " << mema << "\n";
+	std::cout << "--------------------\n\n";
+	
+	std::cout << "REGISTERS\n";
+	std::cout << "CARRY     = " << (uint16_t) carry << "\n";
+	std::cout << "RESULTS   = " << (uint16_t) rr << "\n";
+	std::cout << "INPUT EN  = " << (uint16_t) ien << "\n";
+	std::cout << "OUTPUT EN = " << (uint16_t) oen << "\n";
+	std::cout << "SCRATCH   = " << (uint16_t) sctrg << "\n";
+	std::cout << "OUTPUT    = " << (uint16_t) outrg << "\n";
+	std::cout << "INPUT SW. = " << (uint16_t) inprg << "\n\n";
+	
+	std::cout << "FLAGS\n";
+	std::cout << "FLAG 0    = " << flag0 << "\n";
+	std::cout << "WRITE     = " << wrt << "\n";
+	std::cout << "I/O CON   = " << ioc << "\n";
+	std::cout << "RETURN    = " << rtn << "\n";
+	std::cout << "SKIP Z    = " << skz << "\n\n";
+
+	if (halt) {
+		std::cout << "PROCESSOR IS HALTED\n\n";
+	}
+	else {
+		std::cout << "PROCESSOR IS RUNNING\n\n";
+	}
+}
+
+
 void printxy(int x, int y, const char *format, ...) {
     va_list args;
     va_start(args, format);

@@ -38,8 +38,8 @@ std::atomic_uint8_t inprg	= { 0 };
 
 
 // Temporary holding cells.
-std::atomic_uint8_t tprr		= { 0 };
-std::atomic_uint8_t tpdb		= { 0 };
+std::atomic_uint8_t tprr	= { 0 };
+std::atomic_uint8_t tpdb	= { 0 };
 std::atomic_uint8_t tpreg	= { 0 };
 std::atomic_uint8_t trgt1	= { 0 };
 std::atomic_uint8_t trgt2	= { 0 };
@@ -61,7 +61,7 @@ void end_cycle() {
 
 // --- UPDATE DISPLAY ---
 // Update the status display.
-void update_display() {
+/* void update_display() {
 	// Clear screen using ANSI VT100 code.
 	printf("\033[2J");
 	
@@ -92,7 +92,10 @@ void update_display() {
 	else {
 		std::cout << "PROCESSOR IS RUNNING\n\n";
 	}
-}
+} */
+
+
+void update_display();
 
 
 int run_program(std::ifstream& asmfile) {
@@ -290,7 +293,7 @@ int run_program(std::ifstream& asmfile) {
 		else if (opco == "OEN ") { oen = tpbit.load(); }
 		else if (opco == "IOC ") { ioc = 1; /* TODO: BEEP.*/ }
 		else if (opco == "RTN ") { rtn = 1; }
-		else if (opco == "SKZ ") { skz = 1; }
+		else if (opco == "SKZ ") { if (rr == 0) { skz = 1; } }
 		else if (opco == "NOPF") { flagf = 1; }
 		else if (opco == "HLT ") { flagf = 1; }
 		else {
