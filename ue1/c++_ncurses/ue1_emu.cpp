@@ -42,6 +42,13 @@
 // Global variables.
 WINDOW* ue1;
 WINDOW* desc;
+bool sw1 = false;
+bool sw2 = false;
+bool sw3 = false;
+bool sw4 = false;
+bool sw5 = false;
+bool sw6 = false;
+bool sw7 = false;
 
 
 // --- UPDATE DISPLAY ---
@@ -58,7 +65,14 @@ void update_display() {
 	mvwprintw(ue1, 11, 15, std::to_string(sctrg).c_str());
 	mvwprintw(ue1, 12, 15, std::to_string(outrg).c_str());
 	
-	// TODO: Switches.
+	// Update switches.
+	if (sw1) { mvwprintw(ue1, 16, 3, "O"); } else { mvwprintw(ue1, 16, 3, " "); }
+	if (sw2) { mvwprintw(ue1, 16, 7, "O"); } else { mvwprintw(ue1, 16, 7, " "); }
+	if (sw3) { mvwprintw(ue1, 16, 11, "O"); } else { mvwprintw(ue1, 16, 11, " "); }
+	if (sw4) { mvwprintw(ue1, 16, 15, "O"); } else { mvwprintw(ue1, 16, 15, " "); }
+	if (sw5) { mvwprintw(ue1, 16, 19, "O"); } else { mvwprintw(ue1, 16, 19, " "); }
+	if (sw6) { mvwprintw(ue1, 16, 23, "O"); } else { mvwprintw(ue1, 16, 23, " "); }
+	if (sw7) { mvwprintw(ue1, 16, 27, "O"); } else { mvwprintw(ue1, 16, 27, " "); }
 	
 	mvwprintw(ue1, 19, 12, std::to_string(flag0).c_str());
 	mvwprintw(ue1, 20, 12, std::to_string(wrt).c_str());
@@ -75,6 +89,12 @@ void update_display() {
 	
 	wrefresh(desc);	// Show the box.
 	wrefresh(ue1);	// Show the box.
+}
+
+
+// --- DO BEEP ---
+void do_beep() {
+	beep();
 }
 
 
@@ -172,7 +192,7 @@ int main(int argc, char* argv[]) {
 	mvwprintw(desc, 5, 2, "The program will run in a loop until 'q' is pressed to quit.");
 	mvwprintw(desc, 6, 2, "Press 'h' to halt the CPU. A Flag F instruction will also halt.");
 	mvwprintw(desc, 7, 2, "If the CPU is halted, press the 'g' key to resume.");
-	mvwprintw(desc, 8, 2, "Press 1 - 7 to toggle the input switch bit.");
+	mvwprintw(desc, 8, 2, "Press 1 - 7 to toggle the input switches.");
 	
 	mvwprintw(ue1, 0, 2, " UE1 ");
 	mvwprintw(ue1, 2, 2, "Instruction   : ");
@@ -211,6 +231,7 @@ int main(int argc, char* argv[]) {
 	// Do things
 	//wgetch(ue1); // Wait for key before exit.
 	int key;
+	bool toggled = false;
 	while (1) {
 		//update_panels();
 		//doupdate();
@@ -218,6 +239,10 @@ int main(int argc, char* argv[]) {
 		wrefresh(ue1);	// Show the box.
 		
 		key = wgetch(desc);
+		
+		// Debug
+		//mvwprintw(desc, 9, 2, "Key pressed: %3d (%c)", key, key);
+		
 		//key = getch();
 		if (key == 'h') {
 			// Send Halt to CPU.
@@ -227,22 +252,61 @@ int main(int argc, char* argv[]) {
 			// Resume the CPU.
 			halt = false;
 		}
-		else if (key == 'a') {
-			// ??
-			
+		else if (key == 49) {
+			// Toggle '1' switch.
+			tsbit = 128;
+			sw1 = !sw1;
+			toggled = true;
 		}
-		else if (key == 'd') {
-			// ??
-			
+		else if (key == 50) {
+			// Toggle switch 2.
+			tsbit = 64;
+			sw2 = !sw2;
+			toggled = true;
 		}
-		else if (key == 'w') {
-			// Toggle input switch bit.
-			
+		else if (key == 51) {
+			// Toggle input switch 3.
+			tsbit = 32;
+			sw3 = !sw3;
+			toggled = true;
+		}
+		else if (key == 52) {
+			// Toggle input switch 4.
+			tsbit = 16;
+			sw4 = !sw4;
+			toggled = true;
+		}
+		else if (key == 53) {
+			// Toggle input switch 5.
+			tsbit = 8;
+			sw5 = !sw5;
+			toggled = true;
+		}
+		else if (key == 54) {
+			// Toggle input switch 6.
+			tsbit = 4;
+			sw6 = !sw6;
+			toggled = true;
+		}
+		else if (key == 55) {
+			// Toggle input switch 7.
+			tsbit = 2;
+			sw7 = !sw7;
+			toggled = true;
 		}
 		else if (key == 'q') {
 			// Exit.
 			stop = true;
 			break;
+		}
+		
+		if (toggled) {
+			// Adjust inbit.
+			inbit = (inprg & tsbit) / tsbit;
+			if (inbit == 1) { inprg = inprg - tsbit; }
+			else			{ inprg = inprg + tsbit; }
+			
+			toggled = false;
 		}
 	}
 	//while (key != 'q');

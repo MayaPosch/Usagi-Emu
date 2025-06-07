@@ -45,6 +45,7 @@ std::atomic_uint8_t trgt1	= { 0 };
 std::atomic_uint8_t trgt2	= { 0 };
 std::atomic_uint8_t tpbit	= { 0 };
 std::atomic_uint8_t inloc	= { 13 };
+std::atomic_uint8_t inbit	= { 0 };
 std::atomic_uint8_t tsbit	= { 0 };
 
 
@@ -60,6 +61,7 @@ void end_cycle() {
 
 
 void update_display();
+void do_beep();
 
 
 int run_program(std::ifstream& asmfile) {
@@ -120,91 +122,91 @@ int run_program(std::ifstream& asmfile) {
 		if (mema == "SR0") {
 			trgt1 = 1;
 			trgt2 = 1;
-			tpbit = (sctrg && 1);
+			tpbit = (sctrg & 1);
 		}
 		else if (mema == "SR1") {
 			trgt1 = 2;
 			trgt2 = 1;
-			tpbit = (sctrg && 2) / 2;
+			tpbit = (sctrg & 2) / 2;
 		}
 		else if (mema == "SR2") {
 			trgt1 = 4;
 			trgt2 = 1;
-			tpbit = (sctrg && 4) / 4;
+			tpbit = (sctrg & 4) / 4;
 		}
 		else if (mema == "SR3") {
 			trgt1 = 8;
 			trgt2 = 1;
-			tpbit = (sctrg && 8) / 8;
+			tpbit = (sctrg & 8) / 8;
 		}
 		else if (mema == "SR4") {
 			trgt1 = 16;
 			trgt2 = 1;
-			tpbit = (sctrg && 16) / 16;
+			tpbit = (sctrg & 16) / 16;
 		}
 		else if (mema == "SR5") {
 			trgt1 = 32;
 			trgt2 = 1;
-			tpbit = (sctrg && 32) / 32;
+			tpbit = (sctrg & 32) / 32;
 		}
 		else if (mema == "SR6") {
 			trgt1 = 64;
 			trgt2 = 1;
-			tpbit = (sctrg && 64) / 64;
+			tpbit = (sctrg & 64) / 64;
 		}
 		else if (mema == "SR7") {
 			trgt1 = 128;
 			trgt2 = 1;
-			tpbit = (sctrg && 128) / 128;
+			tpbit = (sctrg & 128) / 128;
 		}
 		else if (mema == "OR0") {
 			trgt1 = 1;
 			trgt2 = 2;
-			tpbit = (outrg && 1);
+			tpbit = (outrg & 1);
 		}
 		else if (mema == "OR1") {
 			trgt1 = 2;
 			trgt2 = 2;
-			tpbit = (outrg && 2) / 2;
+			tpbit = (outrg & 2) / 2;
 		}
 		else if (mema == "OR2") {
 			trgt1 = 4;
 			trgt2 = 2;
-			tpbit = (outrg && 4) / 4;
+			tpbit = (outrg & 4) / 4;
 		}
 		else if (mema == "OR3") {
 			trgt1 = 8;
 			trgt2 = 2;
-			tpbit = (outrg && 8) / 8;
+			tpbit = (outrg & 8) / 8;
 		}
 		else if (mema == "OR4") {
 			trgt1 = 16;
 			trgt2 = 2;
-			tpbit = (outrg && 16) / 16;
+			tpbit = (outrg & 16) / 16;
 		}
 		else if (mema == "OR5") {
 			trgt1 = 32;
 			trgt2 = 2;
-			tpbit = (outrg && 32) / 32;
+			tpbit = (outrg & 32) / 32;
 		}
 		else if (mema == "OR6") {
 			trgt1 = 64;
 			trgt2 = 2;
-			tpbit = (outrg && 64) / 64;
+			tpbit = (outrg & 64) / 64;
 		}
 		else if (mema == "OR7") {
 			trgt1 = 128;
 			trgt2 = 2;
-			tpbit = (outrg && 128) / 128;
+			tpbit = (outrg & 128) / 128;
 		}
 		else if (mema == "RR ") { tpbit = rr.load(); }
-		else if (mema == "IR1") { tpbit = (inprg && 2) / 2; }
-		else if (mema == "IR2") { tpbit = (inprg && 4) / 4; }
-		else if (mema == "IR3") { tpbit = (inprg && 8) / 8; }
-		else if (mema == "IR4") { tpbit = (inprg && 16) / 16; }
-		else if (mema == "IR5") { tpbit = (inprg && 32) / 32; }
-		else if (mema == "IR6") { tpbit = (inprg && 64) / 64; }
-		else if (mema == "IR7") { tpbit = (inprg && 128) / 128; }
+		else if (mema == "IR1") { tpbit = (inprg & 2) / 2; }
+		else if (mema == "IR2") { tpbit = (inprg & 4) / 4; }
+		else if (mema == "IR3") { tpbit = (inprg & 8) / 8; }
+		else if (mema == "IR4") { tpbit = (inprg & 16) / 16; }
+		else if (mema == "IR5") { tpbit = (inprg & 32) / 32; }
+		else if (mema == "IR6") { tpbit = (inprg & 64) / 64; }
+		else if (mema == "IR7") { tpbit = (inprg & 128) / 128; }
 		else {
 			std::cerr << "Unknown memory address ('" << mema << "'), stop execution." << std::endl;
 			stop = true;
@@ -246,7 +248,7 @@ int run_program(std::ifstream& asmfile) {
 		}
 		else if (opco == "NAND") {
 			if (ien == 1) {
-				tprr = rr && tpbit;
+				tprr = rr & tpbit;
 				if 		(tprr == 1) { rr = 0; }
 				else if (rr == 0) { rr = 1; }
 			}
@@ -257,7 +259,7 @@ int run_program(std::ifstream& asmfile) {
 		else if (opco == "STOC") { if (oen == 1) { wrt = 1; } }
 		else if (opco == "IEN ") { ien = tpbit.load(); }
 		else if (opco == "OEN ") { oen = tpbit.load(); }
-		else if (opco == "IOC ") { ioc = 1; /* TODO: BEEP.*/ }
+		else if (opco == "IOC ") { ioc = 1; do_beep(); }
 		else if (opco == "RTN ") { rtn = 1; }
 		else if (opco == "SKZ ") { if (rr == 0) { skz = 1; } }
 		else if (opco == "NOPF") { flagf = 1; }
