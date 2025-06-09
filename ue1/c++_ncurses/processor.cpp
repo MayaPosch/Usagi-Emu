@@ -76,20 +76,6 @@ int run_program(std::ifstream& asmfile) {
 			continue;
 		}
 		
-		// Skip this instruction [cycle?] if last instruction was SKZ & RR = 0.
-		if (skz && (rr == 0)) {
-			skz = false;
-			end_cycle();
-			continue;
-		}
-		
-		// Skip this instruction [cycle?] if last instruction was RTN.
-		if (rtn) {
-			rtn = false;
-			end_cycle();
-			continue;
-		}
-		
 		// Fetch next line with opcode & memory address.
 		while (1) {
 			// if we're at EOF, return the cursor to the beginning.
@@ -110,6 +96,20 @@ int run_program(std::ifstream& asmfile) {
 			while (mema[mema.size() - 1] == ' ') { mema.erase(mema.end() - 1); }
 			
 			break;
+		}
+		
+		// Skip this instruction [cycle?] if last instruction was SKZ & RR = 0.
+		if (skz && (rr == 0)) {
+			skz = false;
+			end_cycle();
+			continue;
+		}
+		
+		// Skip this instruction [cycle?] if last instruction was RTN.
+		if (rtn) {
+			rtn = false;
+			end_cycle();
+			continue;
 		}
 		
 		// Reset flags.
