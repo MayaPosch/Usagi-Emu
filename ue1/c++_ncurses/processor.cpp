@@ -224,29 +224,29 @@ int run_program(std::ifstream& asmfile) {
 			flag0 = true;
 		}
 		else if (opco == "LD  ") {
-			if (ien == 1) { rr = tpbit.load(); }
+			if (ien == 1) { rr = tpbit.load(); } else { rr = 0; }
 		}
 		else if (opco == "ADD ") {
-			if (ien) {
-				tprr = rr + carry + tpbit;
-				if 		(tprr == 0)	{ rr = 0; carry = 0; }
-				else if (tprr == 1) { rr = 1; carry = 0; }
-				else if (tprr == 2)	{ rr = 0; carry = 1; }
-				else if (tprr == 3)	{ rr = 1; carry = 1; }
-			}
+			if (ien == 0) { tpbit = 0; }
+		
+			tprr = rr + carry + tpbit;
+			if 		(tprr == 0)	{ rr = 0; carry = 0; }
+			else if (tprr == 1) { rr = 1; carry = 0; }
+			else if (tprr == 2)	{ rr = 0; carry = 1; }
+			else if (tprr == 3)	{ rr = 1; carry = 1; }
 		}
 		else if (opco == "SUB ") {
-			if (ien == 1) {
-				if (tpbit == 1) { tpdb = 0; }
-				else 			{ tpdb = 1; }
+			if (ien == 0) { tpbit = 0; }
 				
-				tprr = (rr + carry + tpdb);
-				
-				if 		(tprr == 0) { rr = 0; carry = 0; }
-				else if (tprr == 1) { rr = 1; carry = 0; }
-				else if (tprr == 2) { rr = 0; carry = 1; }
-				else if (tprr == 3) { rr = 1; carry = 1; }
-			}
+			if (tpbit == 1) { tpdb = 0; }
+			else 			{ tpdb = 1; }
+			
+			tprr = (rr + carry + tpdb);
+			
+			if 		(tprr == 0) { rr = 0; carry = 0; }
+			else if (tprr == 1) { rr = 1; carry = 0; }
+			else if (tprr == 2) { rr = 0; carry = 1; }
+			else if (tprr == 3) { rr = 1; carry = 1; }
 		}
 		else if (opco == "ONE ") {
 			rr = 1;
@@ -258,9 +258,14 @@ int run_program(std::ifstream& asmfile) {
 				if 		(tprr == 1) { rr = 0; }
 				else if (rr == 0) { rr = 1; }
 			}
+			else {
+				tprr = rr & 0;
+				if 		(tprr == 1) { rr = 0; }
+				else if (rr == 0) { rr = 1; }
+			}
 		}
-		else if (opco == "OR  ") { if (ien == 1) { rr = rr | tpbit; } }
-		else if (opco == "XOR ") { if (ien == 1) { rr = rr ^ tpbit; } }
+		else if (opco == "OR  ") { if (ien == 1) { rr = rr | tpbit; } else { rr = 0; } }
+		else if (opco == "XOR ") { if (ien == 1) { rr = rr ^ tpbit; } else { rr = rr ^ 0; } }
 		else if (opco == "STO ") { if (oen == 1) { wrt = true; } }
 		else if (opco == "STOC") { if (oen == 1) { wrt = true; } }
 		else if (opco == "IEN ") { ien = tpbit.load(); }
