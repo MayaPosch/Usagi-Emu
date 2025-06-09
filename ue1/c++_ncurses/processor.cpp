@@ -113,6 +113,8 @@ int run_program(std::ifstream& asmfile) {
 		}
 		
 		// Reset flags.
+		rtn = false;
+		skz = false;
 		flag0 = false;
 		flagf = false;
 		wrt = false;
@@ -219,10 +221,10 @@ int run_program(std::ifstream& asmfile) {
 		
 		// Execute the operation.
 		if (opco == "NOP0") {
-			flag0 = false;
+			flag0 = true;
 		}
 		else if (opco == "LD  ") {
-			if (ien) { rr = tpbit.load(); }
+			if (ien == 1) { rr = tpbit.load(); }
 		}
 		else if (opco == "ADD ") {
 			if (ien) {
@@ -266,8 +268,8 @@ int run_program(std::ifstream& asmfile) {
 		else if (opco == "IOC ") { ioc = 1; do_beep(); }
 		else if (opco == "RTN ") { rtn = 1; }
 		else if (opco == "SKZ ") { skz = true; }
-		else if (opco == "NOPF") { flagf = 1; }
-		else if (opco == "HLT ") { flagf = 1; }
+		else if (opco == "NOPF") { flagf = true; }
+		else if (opco == "HLT ") { flagf = true; }
 		else {
 			std::cerr << "Unknown opcode ('" << opco << "'). Aborting." << std::endl;
 			stop = 1;
