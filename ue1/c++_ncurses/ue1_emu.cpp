@@ -203,9 +203,9 @@ int main(int argc, char* argv[]) {
 	mvwprintw(ue1, 7, 2, "Carry      = ");
 	mvwprintw(ue1, 8, 2, "Results    = ");
 	mvwprintw(ue1, 9, 2, "Input EN   = ");
-	mvwprintw(ue1, 10, 2, "Output EN = ");
-	mvwprintw(ue1, 11, 2, "Scratch   = ");
-	mvwprintw(ue1, 12, 2, "Output    = ");
+	mvwprintw(ue1, 10, 2, "Output EN  = ");
+	mvwprintw(ue1, 11, 2, "Scratch    = ");
+	mvwprintw(ue1, 12, 2, "Output     = ");
 	
 	mvwprintw(ue1, 14, 2, ">> Input Switches <<");
 	mvwprintw(ue1, 15, 2, " 1   2   3   4   5   6   7");
