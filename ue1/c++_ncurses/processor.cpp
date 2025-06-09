@@ -240,7 +240,7 @@ int run_program(std::ifstream& asmfile) {
 				
 				tprr = (rr + carry + tpdb);
 				
-				if 		(tprr == 1) { rr = 0; carry = 0; }
+				if 		(tprr == 0) { rr = 0; carry = 0; }
 				else if (tprr == 1) { rr = 1; carry = 0; }
 				else if (tprr == 2) { rr = 0; carry = 1; }
 				else if (tprr == 3) { rr = 1; carry = 1; }
