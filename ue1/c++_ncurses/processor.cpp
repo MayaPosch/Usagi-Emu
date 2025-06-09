@@ -102,9 +102,13 @@ int run_program(std::ifstream& asmfile) {
 			// Split line into opcode (4 characters) & memory address (3 chars).
 			// Both are separated by two spaces.
 			// Skip if starting with ';'.
-			if (line[0] == ';') { continue; }
+			if (line[0] == ';' || line.size() < 7) { continue; }
 			opco = line.substr(0, 4);
 			mema = line.substr(5, 3);
+			
+			// Trim trailing whitespace on mem address.
+			while (mema[mema.size() - 1] == ' ') { mema.erase(mema.end() - 1); }
+			
 			break;
 		}
 		
@@ -114,11 +118,11 @@ int run_program(std::ifstream& asmfile) {
 		wrt = false;
 		ioc = false;
 		trgt1 = false;
-		trgt2= false;
+		trgt2 = false;
 		
 		// Set up the target memory location.
 		// trgt1 => the specific bit we want to focus on.
-		// trgt2 => the regsiter want to work with (1 = scratch, 2 = output).
+		// trgt2 => the register want to work with (1 = scratch, 2 = output).
 		if (mema == "SR0") {
 			trgt1 = 1;
 			trgt2 = 1;
@@ -199,7 +203,7 @@ int run_program(std::ifstream& asmfile) {
 			trgt2 = 2;
 			tpbit = (outrg & 128) / 128;
 		}
-		else if (mema == "RR ") { tpbit = rr.load(); }
+		else if (mema == "RR") { tpbit = rr.load(); }
 		else if (mema == "IR1") { tpbit = (inprg & 2) / 2; }
 		else if (mema == "IR2") { tpbit = (inprg & 4) / 4; }
 		else if (mema == "IR3") { tpbit = (inprg & 8) / 8; }
@@ -255,13 +259,13 @@ int run_program(std::ifstream& asmfile) {
 		}
 		else if (opco == "OR  ") { if (ien == 1) { rr = rr || tpbit; } }
 		else if (opco == "XOR ") { if (ien == 1) { rr = rr || tpbit; } }
-		else if (opco == "STO ") { if (oen == 1) { wrt = 1; } }
-		else if (opco == "STOC") { if (oen == 1) { wrt = 1; } }
+		else if (opco == "STO ") { if (oen == 1) { wrt = true; } }
+		else if (opco == "STOC") { if (oen == 1) { wrt = true; } }
 		else if (opco == "IEN ") { ien = tpbit.load(); }
 		else if (opco == "OEN ") { oen = tpbit.load(); }
 		else if (opco == "IOC ") { ioc = 1; do_beep(); }
 		else if (opco == "RTN ") { rtn = 1; }
-		else if (opco == "SKZ ") { if (rr == 0) { skz = 1; } }
+		else if (opco == "SKZ ") { skz = true; }
 		else if (opco == "NOPF") { flagf = 1; }
 		else if (opco == "HLT ") { flagf = 1; }
 		else {
@@ -271,7 +275,7 @@ int run_program(std::ifstream& asmfile) {
 		}
 		
 		// Write the result to scratch or output (if STO/STOC).
-		if (wrt == 1) {
+		if (wrt == true) {
 			tprr = rr.load();
 			if (opco == "STOC") {
 				if 		(rr == 1) { tprr = 0; }
