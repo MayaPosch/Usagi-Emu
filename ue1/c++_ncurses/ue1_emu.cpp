@@ -62,6 +62,7 @@ void update_display() {
 	mvwprintw(ue1, 8, 15, std::to_string(rr).c_str());
 	mvwprintw(ue1, 9, 15, std::to_string(ien).c_str());
 	mvwprintw(ue1, 10, 15, std::to_string(oen).c_str());
+	mvwprintw(ue1, 11, 15, "   "); // erase
 	mvwprintw(ue1, 11, 15, std::to_string(sctrg).c_str());
 	mvwprintw(ue1, 12, 15, "   "); // erase
 	mvwprintw(ue1, 12, 15, std::to_string(outrg).c_str());
