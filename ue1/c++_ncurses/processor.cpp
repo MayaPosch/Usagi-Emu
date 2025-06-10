@@ -264,7 +264,7 @@ int run_program(std::ifstream& asmfile) {
 				else if (rr == 0) { rr = 1; }
 			}
 		}
-		else if (opco == "OR  ") { if (ien == 1) { rr = rr | tpbit; } else { rr = 0; } }
+		else if (opco == "OR  ") { if (ien == 1) { rr = rr | tpbit; } else { rr = rr | 0; } }
 		else if (opco == "XOR ") { if (ien == 1) { rr = rr ^ tpbit; } else { rr = rr ^ 0; } }
 		else if (opco == "STO ") { if (oen == 1) { wrt = true; } }
 		else if (opco == "STOC") { if (oen == 1) { wrt = true; } }
