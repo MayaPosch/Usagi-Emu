@@ -83,10 +83,14 @@ void update_display() {
 	mvwprintw(ue1, 23, 12, std::to_string(skz).c_str());
 	
 	if (halt) {
+		wattron(ue1, COLOR_PAIR(2) | A_BOLD);
 		mvwprintw(ue1, 25, 16, "HALTED ");
+		wattroff(ue1, COLOR_PAIR(2) | A_BOLD);
 	}
 	else {
+		wattron(ue1, COLOR_PAIR(3) | A_BOLD);
 		mvwprintw(ue1, 25, 16, "RUNNING");
+		wattroff(ue1, COLOR_PAIR(3) | A_BOLD);
 	}
 	
 	wrefresh(desc);	// Show the box.
@@ -170,9 +174,12 @@ int main(int argc, char* argv[]) {
 	}
 	
 	start_color();
-	init_pair(1, COLOR_WHITE, COLOR_BLUE); // fore & background colours.
+	init_pair(1, COLOR_WHITE, COLOR_BLUE); 	// fore & background colours.
+	init_pair(2, COLOR_RED, COLOR_BLACK);
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
 	
-	attron(COLOR_PAIR(1));
+	//attron(COLOR_PAIR(1));
+	wattron(ue1, COLOR_PAIR(1));
 	
 	// Create a window that we can put the emulator status on.
 	// arguments: rows, columns, start_y, start_x
@@ -313,7 +320,8 @@ int main(int argc, char* argv[]) {
 	}
 	
 	//print_in_middle(stdscr, LINES / 2, 0, 0, "Hello World! In color ...");
-	attroff(COLOR_PAIR(1));
+	//attroff(COLOR_PAIR(1));
+	wattroff(ue1, COLOR_PAIR(1));
 	
 	// Wait for the processor thread to finish.
 	cpu.join();
