@@ -309,20 +309,18 @@ int main(int argc, char* argv[]) {
 			toggled = false;
 		}
 	}
-	//while (key != 'q');
 	
 	//print_in_middle(stdscr, LINES / 2, 0, 0, "Hello World! In color ...");
 	attroff(COLOR_PAIR(1));
+	
+	// Wait for the processor thread to finish.
+	cpu.join();
 	
 	// Clean up ncurses library.
 	delwin(desc);
 	delwin(ue1);
 	endwin();		// Main ncurses clean-up.
-	//echo();			// Echo user input again.
 	//curs_set(1);	// Set if changed.
-	
-	// Wait for the processor thread to finish.
-	cpu.join();
 	
 	return 0;
 }
