@@ -4,9 +4,15 @@
 */
 
 
-#include <ncurses/ncurses.h>
-#include <ncurses/panel.h>
-#include <ncurses/menu.h>
+#ifdef __MINGW32__
+	#include <ncurses/ncurses.h>
+	//#include <ncurses/panel.h>
+	//#include <ncurses/menu.h>
+#else
+	#include <ncurses.h>
+	//#include <panel.h>
+	//#include <menu.h>
+#endif
 
 #include <iostream>
 #include <cstring>
@@ -183,8 +189,8 @@ int main(int argc, char* argv[]) {
 	
 	// Create a window that we can put the emulator status on.
 	// arguments: rows, columns, start_y, start_x
-	desc = newwin(12, 70, 2, 2);
-	ue1 = newwin(30, 60, 15, 2);
+	desc = newwin(9, 70, 1, 2);
+	ue1 = newwin(28, 60, 10, 2);
 	box(desc, 0, 0);	// use default window outline characters.
 	box(ue1, 0, 0);		// use default window outline characters.
 	wrefresh(desc);	// Show the box.
@@ -196,12 +202,12 @@ int main(int argc, char* argv[]) {
 	
 	// Print the basic text.
 	mvwprintw(desc, 0, 2, " Description ");
-	mvwprintw(desc, 2, 2, "Welcome to the UE1 emulator.");
-	mvwprintw(desc, 3, 2, "Ported from Usagi Electric's QuickBasic version by Maya Posch.");
-	mvwprintw(desc, 5, 2, "The program will run in a loop until 'q' is pressed to quit.");
-	mvwprintw(desc, 6, 2, "Press 'h' to halt the CPU. A Flag F instruction will also halt.");
-	mvwprintw(desc, 7, 2, "If the CPU is halted, press the 'g' key to resume.");
-	mvwprintw(desc, 8, 2, "Press 1 - 7 to toggle the input switches.");
+	mvwprintw(desc, 1, 2, "Welcome to the UE1 emulator.");
+	mvwprintw(desc, 2, 2, "Ported from Usagi Electric's QuickBasic version by Maya Posch.");
+	mvwprintw(desc, 4, 2, "The program will run in a loop until 'q' is pressed to quit.");
+	mvwprintw(desc, 5, 2, "Press 'h' to halt the CPU. A Flag F instruction will also halt.");
+	mvwprintw(desc, 6, 2, "If the CPU is halted, press the 'g' key to resume.");
+	mvwprintw(desc, 7, 2, "Press 1 - 7 to toggle the input switches.");
 	
 	mvwprintw(ue1, 0, 2, " UE1 ");
 	mvwprintw(ue1, 2, 2, "Instruction   : ");
