@@ -38,6 +38,11 @@ extern std::atomic_uint8_t sctrg;
 extern std::atomic_uint8_t inprg;
 
 
+// Temporary holding cells.
+extern std::atomic_uint8_t inbit;
+extern std::atomic_uint8_t tsbit;
+
+
 extern std::string mema; // Memory address.
 extern std::string opco; // Opcode.
 

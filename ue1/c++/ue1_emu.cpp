@@ -61,6 +61,13 @@ void update_display() {
 }
 
 
+// --- DO BEEP ---
+void do_beep() {
+	// TODO: something here.
+	//beep();
+}
+
+
 void printxy(int x, int y, const char *format, ...) {
     va_list args;
     va_start(args, format);

@@ -45,6 +45,7 @@ std::atomic_uint8_t trgt1	= { 0 };
 std::atomic_uint8_t trgt2	= { 0 };
 std::atomic_uint8_t tpbit	= { 0 };
 std::atomic_uint8_t inloc	= { 13 };
+std::atomic_uint8_t inbit	= { 0 };
 std::atomic_uint8_t tsbit	= { 0 };
 
 
@@ -59,43 +60,8 @@ void end_cycle() {
 }
 
 
-// --- UPDATE DISPLAY ---
-// Update the status display.
-/* void update_display() {
-	// Clear screen using ANSI VT100 code.
-	printf("\033[2J");
-	
-	// Output data.
-	std::cout << "INSTRUCTION   : " << mema << "\n";
-	std::cout << "MEMORY ADDRESS: " << opco << "\n";
-	std::cout << "--------------------\n\n";
-	
-	std::cout << "REGISTERS\n";
-	std::cout << "CARRY     = " << (uint16_t) carry << "\n";
-	std::cout << "RESULTS   = " << (uint16_t) rr << "\n";
-	std::cout << "INPUT EN  = " << (uint16_t) ien << "\n";
-	std::cout << "OUTPUT EN = " << (uint16_t) oen << "\n";
-	std::cout << "SCRATCH   = " << (uint16_t) sctrg << "\n";
-	std::cout << "OUTPUT    = " << (uint16_t) outrg << "\n";
-	std::cout << "INPUT SW. = " << (uint16_t) inprg << "\n\n";
-	
-	std::cout << "FLAGS\n";
-	std::cout << "FLAG 0    = " << flag0 << "\n";
-	std::cout << "WRITE     = " << wrt << "\n";
-	std::cout << "I/O CON   = " << ioc << "\n";
-	std::cout << "RETURN    = " << rtn << "\n";
-	std::cout << "SKIP Z    = " << skz << "\n\n";
-
-	if (halt) {
-		std::cout << "PROCESSOR IS HALTED\n\n";
-	}
-	else {
-		std::cout << "PROCESSOR IS RUNNING\n\n";
-	}
-} */
-
-
 void update_display();
+void do_beep();
 
 
 int run_program(std::ifstream& asmfile) {
@@ -104,8 +70,32 @@ int run_program(std::ifstream& asmfile) {
 	while (!stop) {
 		if (halt || flagf == 1) {
 			// We're in halted state. Idle here until halted state is cancelled.
+			halt = true;
 			end_cycle();
+			update_display();
 			continue;
+		}
+		
+		// Fetch next line with opcode & memory address.
+		while (1) {
+			// if we're at EOF, return the cursor to the beginning.
+			if (asmfile.eof()) {
+				asmfile.seekg(0);
+			}
+			
+			std::getline(asmfile, line);
+			
+			// Split line into opcode (4 characters) & memory address (3 chars).
+			// Both are separated by two spaces.
+			// Skip if starting with ';'.
+			if (line[0] == ';' || line.size() < 7) { continue; }
+			opco = line.substr(0, 4);
+			mema = line.substr(5, 3);
+			
+			// Trim trailing whitespace on mem address.
+			while (mema[mema.size() - 1] == ' ') { mema.erase(mema.end() - 1); }
+			
+			break;
 		}
 		
 		// Skip this instruction [cycle?] if last instruction was SKZ & RR = 0.
@@ -122,123 +112,107 @@ int run_program(std::ifstream& asmfile) {
 			continue;
 		}
 		
-		// Fetch next line with opcode & memory address.
-		while (1) {
-			// if we're at EOF, return the cursor to the beginning.
-			if (asmfile.eof()) {
-				asmfile.seekg(0);
-			}
-			
-			std::getline(asmfile, line);
-			
-			// Split line into opcode (4 characters) & memory address (3 chars).
-			// Both are separated by two spaces.
-			// Skip if starting with ';'.
-			if (line[0] == ';') { continue; }
-			opco = line.substr(0, 4);
-			mema = line.substr(5, 3);
-			break;
-		}
-		
 		// Reset flags.
+		rtn = false;
+		skz = false;
 		flag0 = false;
 		flagf = false;
 		wrt = false;
 		ioc = false;
 		trgt1 = false;
-		trgt2= false;
+		trgt2 = false;
 		
 		// Set up the target memory location.
 		// trgt1 => the specific bit we want to focus on.
-		// trgt2 => the regsiter want to work with (1 = scratch, 2 = output).
+		// trgt2 => the register want to work with (1 = scratch, 2 = output).
 		if (mema == "SR0") {
 			trgt1 = 1;
 			trgt2 = 1;
-			tpbit = (sctrg && 1);
+			tpbit = (sctrg & 1);
 		}
 		else if (mema == "SR1") {
 			trgt1 = 2;
 			trgt2 = 1;
-			tpbit = (sctrg && 2) / 2;
+			tpbit = (sctrg & 2) / 2;
 		}
 		else if (mema == "SR2") {
 			trgt1 = 4;
 			trgt2 = 1;
-			tpbit = (sctrg && 4) / 4;
+			tpbit = (sctrg & 4) / 4;
 		}
 		else if (mema == "SR3") {
 			trgt1 = 8;
 			trgt2 = 1;
-			tpbit = (sctrg && 8) / 8;
+			tpbit = (sctrg & 8) / 8;
 		}
 		else if (mema == "SR4") {
 			trgt1 = 16;
 			trgt2 = 1;
-			tpbit = (sctrg && 16) / 16;
+			tpbit = (sctrg & 16) / 16;
 		}
 		else if (mema == "SR5") {
 			trgt1 = 32;
 			trgt2 = 1;
-			tpbit = (sctrg && 32) / 32;
+			tpbit = (sctrg & 32) / 32;
 		}
 		else if (mema == "SR6") {
 			trgt1 = 64;
 			trgt2 = 1;
-			tpbit = (sctrg && 64) / 64;
+			tpbit = (sctrg & 64) / 64;
 		}
 		else if (mema == "SR7") {
 			trgt1 = 128;
 			trgt2 = 1;
-			tpbit = (sctrg && 128) / 128;
+			tpbit = (sctrg & 128) / 128;
 		}
 		else if (mema == "OR0") {
 			trgt1 = 1;
 			trgt2 = 2;
-			tpbit = (outrg && 1);
+			tpbit = (outrg & 1);
 		}
 		else if (mema == "OR1") {
 			trgt1 = 2;
 			trgt2 = 2;
-			tpbit = (outrg && 2) / 2;
+			tpbit = (outrg & 2) / 2;
 		}
 		else if (mema == "OR2") {
 			trgt1 = 4;
 			trgt2 = 2;
-			tpbit = (outrg && 4) / 4;
+			tpbit = (outrg & 4) / 4;
 		}
 		else if (mema == "OR3") {
 			trgt1 = 8;
 			trgt2 = 2;
-			tpbit = (outrg && 8) / 8;
+			tpbit = (outrg & 8) / 8;
 		}
 		else if (mema == "OR4") {
 			trgt1 = 16;
 			trgt2 = 2;
-			tpbit = (outrg && 16) / 16;
+			tpbit = (outrg & 16) / 16;
 		}
 		else if (mema == "OR5") {
 			trgt1 = 32;
 			trgt2 = 2;
-			tpbit = (outrg && 32) / 32;
+			tpbit = (outrg & 32) / 32;
 		}
 		else if (mema == "OR6") {
 			trgt1 = 64;
 			trgt2 = 2;
-			tpbit = (outrg && 64) / 64;
+			tpbit = (outrg & 64) / 64;
 		}
 		else if (mema == "OR7") {
 			trgt1 = 128;
 			trgt2 = 2;
-			tpbit = (outrg && 128) / 128;
+			tpbit = (outrg & 128) / 128;
 		}
-		else if (mema == "RR ") { tpbit = rr.load(); }
-		else if (mema == "IR1") { tpbit = (inprg && 2) / 2; }
-		else if (mema == "IR2") { tpbit = (inprg && 4) / 4; }
-		else if (mema == "IR3") { tpbit = (inprg && 8) / 8; }
-		else if (mema == "IR4") { tpbit = (inprg && 16) / 16; }
-		else if (mema == "IR5") { tpbit = (inprg && 32) / 32; }
-		else if (mema == "IR6") { tpbit = (inprg && 64) / 64; }
-		else if (mema == "IR7") { tpbit = (inprg && 128) / 128; }
+		else if (mema == "RR") { tpbit = rr.load(); }
+		else if (mema == "IR1") { tpbit = (inprg & 2) / 2; }
+		else if (mema == "IR2") { tpbit = (inprg & 4) / 4; }
+		else if (mema == "IR3") { tpbit = (inprg & 8) / 8; }
+		else if (mema == "IR4") { tpbit = (inprg & 16) / 16; }
+		else if (mema == "IR5") { tpbit = (inprg & 32) / 32; }
+		else if (mema == "IR6") { tpbit = (inprg & 64) / 64; }
+		else if (mema == "IR7") { tpbit = (inprg & 128) / 128; }
 		else {
 			std::cerr << "Unknown memory address ('" << mema << "'), stop execution." << std::endl;
 			stop = true;
@@ -247,32 +221,32 @@ int run_program(std::ifstream& asmfile) {
 		
 		// Execute the operation.
 		if (opco == "NOP0") {
-			flag0 = false;
+			flag0 = true;
 		}
 		else if (opco == "LD  ") {
-			if (ien) { rr = tpbit.load(); }
+			if (ien == 1) { rr = tpbit.load(); } else { rr = 0; }
 		}
 		else if (opco == "ADD ") {
-			if (ien) {
-				tprr = rr + carry + tpbit;
-				if 		(tprr == 0)	{ rr = 0; carry = 0; }
-				else if (tprr == 1) { rr = 1; carry = 0; }
-				else if (tprr == 2)	{ rr = 0; carry = 1; }
-				else if (tprr == 3)	{ rr = 1; carry = 1; }
-			}
+			if (ien == 0) { tpbit = 0; }
+		
+			tprr = rr + carry + tpbit;
+			if 		(tprr == 0)	{ rr = 0; carry = 0; }
+			else if (tprr == 1) { rr = 1; carry = 0; }
+			else if (tprr == 2)	{ rr = 0; carry = 1; }
+			else if (tprr == 3)	{ rr = 1; carry = 1; }
 		}
 		else if (opco == "SUB ") {
-			if (ien == 1) {
-				if (tpbit == 1) { tpdb = 0; }
-				else 			{ tpdb = 1; }
+			if (ien == 0) { tpbit = 0; }
 				
-				tprr = (rr + carry + tpdb);
-				
-				if 		(tprr == 1) { rr = 0; carry = 0; }
-				else if (tprr == 1) { rr = 1; carry = 0; }
-				else if (tprr == 2) { rr = 0; carry = 1; }
-				else if (tprr == 3) { rr = 1; carry = 1; }
-			}
+			if (tpbit == 1) { tpdb = 0; }
+			else 			{ tpdb = 1; }
+			
+			tprr = (rr + carry + tpdb);
+			
+			if 		(tprr == 0) { rr = 0; carry = 0; }
+			else if (tprr == 1) { rr = 1; carry = 0; }
+			else if (tprr == 2) { rr = 0; carry = 1; }
+			else if (tprr == 3) { rr = 1; carry = 1; }
 		}
 		else if (opco == "ONE ") {
 			rr = 1;
@@ -280,22 +254,27 @@ int run_program(std::ifstream& asmfile) {
 		}
 		else if (opco == "NAND") {
 			if (ien == 1) {
-				tprr = rr && tpbit;
+				tprr = rr & tpbit;
+				if 		(tprr == 1) { rr = 0; }
+				else if (rr == 0) { rr = 1; }
+			}
+			else {
+				tprr = rr & 0;
 				if 		(tprr == 1) { rr = 0; }
 				else if (rr == 0) { rr = 1; }
 			}
 		}
-		else if (opco == "OR  ") { if (ien == 1) { rr = rr || tpbit; } }
-		else if (opco == "XOR ") { if (ien == 1) { rr = rr || tpbit; } }
-		else if (opco == "STO ") { if (oen == 1) { wrt = 1; } }
-		else if (opco == "STOC") { if (oen == 1) { wrt = 1; } }
+		else if (opco == "OR  ") { if (ien == 1) { rr = rr | tpbit; } else { rr = rr | 0; } }
+		else if (opco == "XOR ") { if (ien == 1) { rr = rr ^ tpbit; } else { rr = rr ^ 0; } }
+		else if (opco == "STO ") { if (oen == 1) { wrt = true; } }
+		else if (opco == "STOC") { if (oen == 1) { wrt = true; } }
 		else if (opco == "IEN ") { ien = tpbit.load(); }
 		else if (opco == "OEN ") { oen = tpbit.load(); }
-		else if (opco == "IOC ") { ioc = 1; /* TODO: BEEP.*/ }
+		else if (opco == "IOC ") { ioc = 1; do_beep(); }
 		else if (opco == "RTN ") { rtn = 1; }
-		else if (opco == "SKZ ") { if (rr == 0) { skz = 1; } }
-		else if (opco == "NOPF") { flagf = 1; }
-		else if (opco == "HLT ") { flagf = 1; }
+		else if (opco == "SKZ ") { skz = true; }
+		else if (opco == "NOPF") { flagf = true; }
+		else if (opco == "HLT ") { flagf = true; }
 		else {
 			std::cerr << "Unknown opcode ('" << opco << "'). Aborting." << std::endl;
 			stop = 1;
@@ -303,7 +282,7 @@ int run_program(std::ifstream& asmfile) {
 		}
 		
 		// Write the result to scratch or output (if STO/STOC).
-		if (wrt == 1) {
+		if (wrt == true) {
 			tprr = rr.load();
 			if (opco == "STOC") {
 				if 		(rr == 1) { tprr = 0; }
