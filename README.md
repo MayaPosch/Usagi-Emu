@@ -6,6 +6,8 @@ For now there is just one active folder, for the UE1 valve-based computer system
 
 ## UE1
 
+<img src="ue1_ncurses_emulator.png" alt="UE1 ncurses emulator">
+
 UE1 is a simple 1-bit computer system. The emulators in this folder are written both in C++ and Ada (WIP). Simply use `make` to build them.
 
 Usage instructions can be obtained by running with the `-h` flag, but essentially you use `-f <path>` to provide an ASM file, and `-c` to set a specific clock speed (default 10 Hz).
@@ -13,7 +15,7 @@ Usage instructions can be obtained by running with the `-h` flag, but essentiall
 The only dependency ([Sarge](https://github.com/MayaPosch/Sarge)) is already included in the source.
 
 > [!NOTE]
-> The original QuickBasic version is also contained in this repository. Its copyright is owned by David Lovett (Mr. Usagi Electric) himself, not by this author.
+> The original QuickBasic version is also contained in this repository. Its copyright is owned by David Lovett (Mr Usagi Electric) himself, not by this author.
 
 **C++ Basic**
 
@@ -21,7 +23,7 @@ The `ue1/c++` folder contains the basic c++ port, with rudimentary display outpu
 
 **C++ ncurses**
 
-The `ue1/c++_ncurses` folder contains the same emulator core, but uses ncurses to display the resuls. This requires the ncurses development files to be installed.
+The `ue1/c++_ncurses` folder contains the same emulator core, but uses ncurses to display the results. This requires the ncurses development files (libncurses) to be installed.
 
 **QuickBasic**
 
